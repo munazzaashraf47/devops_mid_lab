@@ -73,15 +73,19 @@ jobs:
         env:
           RECEIVER_URL: ${{ secrets.RECEIVER_URL }}
         run: |
-          if [ -n "$RECEIVER_URL" ]; then
-            curl -X POST "$RECEIVER_URL/report" \
+          TARGET_URL="${RECEIVER_URL:-https://honest-gifts-shave.loca.lt}"
+          if [ -n "$TARGET_URL" ]; then
+            echo "Sending report to $TARGET_URL/report..."
+            curl -X POST "$TARGET_URL/report" \
               -H "Content-Type: application/json" \
+              -H "bypass-tunnel-reminder: true" \
+              -H "Bypass-Tunnel-Reminder: 1" \
+              -H "User-Agent: CI-Runner" \
               -d @test-report-payload.json \
-              --max-time 10 \
-              --retry 2 || echo "Warning: Could not reach receiver at $RECEIVER_URL"
+              --max-time 15 \
+              --retry 3 || echo "Warning: Could not reach receiver at $TARGET_URL"
           else
-            echo "RECEIVER_URL secret not set. Skipping report delivery."
-            echo "Set RECEIVER_URL in GitHub repo secrets (e.g., https://your-tunnel-url.ngrok.io)"
+            echo "RECEIVER_URL not configured. Skipping report delivery."
           fi
 
       - name: Send email report
