@@ -1,0 +1,203 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: ["*"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests (JSON output)
+        id: tests
+        run: |
+          npm run test:ci || true
+          echo "done=true" >> $GITHUB_OUTPUT
+
+      - name: Build test report JSON
+        if: always() && steps.tests.outputs.done == 'true'
+        run: |
+          node -e "
+          const fs = require('fs');
+          const results = JSON.parse(fs.readFileSync('test-results.json', 'utf-8'));
+
+          const tests = [];
+          for (const suite of results.testResults) {
+            for (const t of suite.testResults) {
+              tests.push({
+                name: t.fullName || t.title,
+                result: t.status === 'passed' ? 'passed' : 'failed',
+                failureMessage: t.failureMessages && t.failureMessages.length > 0
+                  ? t.failureMessages.join('\n')
+                  : null
+              });
+            }
+          }
+
+          const passed = tests.filter(t => t.result === 'passed').length;
+          const failed = tests.filter(t => t.result === 'failed').length;
+
+          const report = {
+            repository: '${{ github.repository }}',
+            branch: '${{ github.ref_name }}',
+            commitSha: '${{ github.sha }}',
+            pipelineRunId: '${{ github.run_id }}',
+            timestamp: new Date().toISOString(),
+            tests: tests,
+            summary: {
+              total: tests.length,
+              passed: passed,
+              failed: failed
+            },
+            overallStatus: failed === 0 ? 'PASSED' : 'FAILED'
+          };
+
+          fs.writeFileSync('test-report-payload.json', JSON.stringify(report, null, 2));
+          console.log(JSON.stringify(report, null, 2));
+          "
+
+      - name: Send report to local receiver via tunnel
+        if: always() && steps.tests.outputs.done == 'true'
+        env:
+          RECEIVER_URL: ${{ secrets.RECEIVER_URL }}
+        run: |
+          if [ -n "$RECEIVER_URL" ]; then
+            curl -X POST "$RECEIVER_URL/report" \
+              -H "Content-Type: application/json" \
+              -d @test-report-payload.json \
+              --max-time 10 \
+              --retry 2 || echo "Warning: Could not reach receiver at $RECEIVER_URL"
+          else
+            echo "RECEIVER_URL secret not set. Skipping report delivery."
+            echo "Set RECEIVER_URL in GitHub repo secrets (e.g., https://your-tunnel-url.ngrok.io)"
+          fi
+
+      - name: Send email report
+        if: always() && steps.tests.outputs.done == 'true'
+        env:
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+        run: |
+          if [ -n "$EMAIL_TO" ] && [ -n "$EMAIL_FROM" ] && [ -n "$EMAIL_PASSWORD" ]; then
+            node -e "
+            const nodemailer = require('nodemailer') || null;
+            " 2>/dev/null
+
+            npm install nodemailer --no-save
+
+            node -e "
+            const nodemailer = require('nodemailer');
+            const fs = require('fs');
+            const report = JSON.parse(fs.readFileSync('test-report-payload.json', 'utf-8'));
+
+            const transporter = nodemailer.createTransport({
+              host: process.env.SMTP_HOST || 'smtp.gmail.com',
+              port: parseInt(process.env.SMTP_PORT || '587'),
+              secure: false,
+              auth: {
+                user: process.env.EMAIL_FROM,
+                pass: process.env.EMAIL_PASSWORD
+              }
+            });
+
+            const testDetails = report.tests.map(t =>
+              '  ' + (t.result === 'passed' ? '✅' : '❌') + ' ' + t.name +
+              (t.failureMessage ? '\n     Reason: ' + t.failureMessage.split('\n')[0] : '')
+            ).join('\n');
+
+            const subject = '[CI] ' + report.overallStatus + ' — ' + report.repository + ' @ ' + report.commitSha.substring(0, 7);
+            const text = [
+              'Test Report — ' + report.overallStatus,
+              '═══════════════════════════════════════',
+              'Repository : ' + report.repository,
+              'Branch     : ' + report.branch,
+              'Commit     : ' + report.commitSha,
+              'Run ID     : ' + report.pipelineRunId,
+              'Timestamp  : ' + report.timestamp,
+              '',
+              'Summary: ' + report.summary.passed + '/' + report.summary.total + ' passed, ' + report.summary.failed + ' failed',
+              '',
+              'Test Results:',
+              testDetails
+            ].join('\n');
+
+            transporter.sendMail({
+              from: process.env.EMAIL_FROM,
+              to: process.env.EMAIL_TO,
+              subject: subject,
+              text: text,
+              attachments: [{
+                filename: 'test-report.json',
+                content: JSON.stringify(report, null, 2)
+              }]
+            }).then(() => console.log('Email sent successfully to ' + process.env.EMAIL_TO))
+              .catch(err => console.error('Email error:', err.message));
+            "
+          else
+            echo "Email secrets not configured. Skipping email report."
+            echo "Set EMAIL_TO, EMAIL_FROM, EMAIL_PASSWORD in GitHub repo secrets."
+          fi
+
+      - name: Upload test report artifact
+        if: always() && steps.tests.outputs.done == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: test-report-payload.json
+
+      - name: Check test results
+        run: |
+          node -e "
+          const fs = require('fs');
+          const results = JSON.parse(fs.readFileSync('test-results.json', 'utf-8'));
+          if (!results.success) {
+            console.error('Tests failed!');
+            process.exit(1);
+          }
+          console.log('All tests passed!');
+          "
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./public"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
