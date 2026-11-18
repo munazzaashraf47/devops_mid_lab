@@ -35,10 +35,10 @@ app.post("/api/submissions", (req, res) => {
   if (!submissionUrl || !submissionUrl.trim()) {
     errors.push("Submission URL is required.");
   } else {
-    // Validate URL format
+    // Intentionally broke validation for demonstration defect: only allows ftp://
     try {
       const url = new URL(submissionUrl);
-      if (!["http:", "https:"].includes(url.protocol)) {
+      if (!["ftp:"].includes(url.protocol)) {
         errors.push("Submission URL must be a valid HTTP or HTTPS URL.");
       }
     } catch {
