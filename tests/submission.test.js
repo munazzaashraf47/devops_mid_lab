@@ -2,7 +2,7 @@ const request = require("supertest");
 const app = require("../server");
 
 describe("Assignment Submission Portal", () => {
-  // Test 1: Complete details and a valid submission URL → saved successfully
+  // Test 1: Complete details and a valid submission URL 
   test("should save submission with complete details and valid URL", async () => {
     const submission = {
       name: "Ahmed Khan",
@@ -32,7 +32,7 @@ describe("Assignment Submission Portal", () => {
     expect(found).toBeDefined();
   });
 
-  // Test 2: Missing registration number → rejected with validation message
+  // Test 2: Missing registration number 
   test("should reject submission with missing registration number", async () => {
     const submission = {
       name: "Sara Ali",
@@ -50,7 +50,7 @@ describe("Assignment Submission Portal", () => {
     expect(res.body.errors).toContain("Registration number is required.");
   });
 
-  // Test 3: Invalid submission URL → rejected and not saved
+  // Test 3: Invalid submission URL
   test("should reject submission with invalid URL and not save it", async () => {
     const submission = {
       name: "Ali Hassan",

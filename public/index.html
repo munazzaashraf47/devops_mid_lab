@@ -3,31 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Assignment Submission Portal</title>
+  <title>Assignment Submission Portal - DevOps Lab Mid</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh; padding: 20px;
+      min-height: 100vh; padding: 25px 15px;
     }
-    .container { max-width: 900px; margin: 0 auto; }
-    h1 {
-      text-align: center; color: #fff; margin-bottom: 30px;
-      font-size: 2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    .container { max-width: 950px; margin: 0 auto; }
+    .header {
+      text-align: center; color: #fff; margin-bottom: 25px;
+    }
+    .header h1 {
+      font-size: 2.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3); margin-bottom: 6px;
+    }
+    .header p {
+      font-size: 1rem; opacity: 0.9;
     }
     .card {
-      background: #fff; border-radius: 12px; padding: 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 30px;
+      background: #fff; border-radius: 12px; padding: 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 25px;
     }
-    .card h2 { color: #333; margin-bottom: 20px; font-size: 1.3rem; }
+    .card h2 { color: #333; margin-bottom: 18px; font-size: 1.35rem; display: flex; align-items: center; justify-content: space-between; }
     .form-group { margin-bottom: 16px; }
-    label { display: block; margin-bottom: 6px; font-weight: 600; color: #555; }
+    label { display: block; margin-bottom: 6px; font-weight: 600; color: #444; font-size: 0.95rem; }
     input {
-      width: 100%; padding: 10px 14px; border: 2px solid #e0e0e0;
-      border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;
+      width: 100%; padding: 11px 14px; border: 2px solid #e2e8f0;
+      border-radius: 8px; font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s;
     }
-    input:focus { outline: none; border-color: #667eea; }
+    input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); }
     .btn {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: #fff; border: none; padding: 12px 30px; border-radius: 8px;
@@ -37,35 +42,45 @@
     .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102,126,234,0.4); }
     .alert {
       padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;
-      font-size: 0.95rem; display: none;
+      font-size: 0.95rem; display: none; line-height: 1.4;
     }
-    .alert-error { background: #fee; color: #c33; border: 1px solid #fcc; }
-    .alert-success { background: #efe; color: #363; border: 1px solid #cfc; }
+    .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+    .alert-success { background: #dcfce7; color: #166534; border: 1px solid #4ade80; }
+    .table-container { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #eee; }
-    th { background: #f8f9fa; color: #555; font-weight: 600; }
-    tr:hover { background: #f0f4ff; }
-    a { color: #667eea; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .empty-msg { color: #999; text-align: center; padding: 30px; font-style: italic; }
+    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #edf2f7; font-size: 0.95rem; }
+    th { background: #f8fafc; color: #475569; font-weight: 600; }
+    tr:hover { background: #f1f5f9; }
+    a.link-btn {
+      display: inline-block; background: #e0e7ff; color: #4338ca;
+      padding: 4px 10px; border-radius: 6px; text-decoration: none; font-weight: 500; font-size: 0.85rem;
+    }
+    a.link-btn:hover { background: #c7d2fe; text-decoration: none; }
+    .empty-msg { color: #94a3b8; text-align: center; padding: 35px 20px; font-style: italic; }
     .badge {
       display: inline-block; background: #667eea; color: #fff;
-      padding: 2px 10px; border-radius: 12px; font-size: 0.85rem; margin-left: 8px;
+      padding: 3px 12px; border-radius: 12px; font-size: 0.85rem;
+    }
+    .mode-note {
+      font-size: 0.85rem; color: #64748b; margin-top: 10px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>📚 Assignment Submission Portal</h1>
+    <div class="header">
+      <h1>📚 Assignment Submission Portal</h1>
+      <p>DevOps for Cloud Computing (CSC418) — COMSATS Attock Campus</p>
+    </div>
 
     <!-- Submission Form -->
     <div class="card">
-      <h2>Submit Assignment</h2>
+      <h2>Submit New Assignment</h2>
       <div id="alert" class="alert"></div>
       <form id="submissionForm">
         <div class="form-group">
           <label for="name">Student Name *</label>
-          <input type="text" id="name" placeholder="Enter your full name" required />
+          <input type="text" id="name" placeholder="e.g., Ahmed Khan" required />
         </div>
         <div class="form-group">
           <label for="registrationNumber">Registration Number *</label>
@@ -73,11 +88,11 @@
         </div>
         <div class="form-group">
           <label for="assignmentTitle">Assignment Title *</label>
-          <input type="text" id="assignmentTitle" placeholder="Enter assignment title" required />
+          <input type="text" id="assignmentTitle" placeholder="e.g., DevOps Lab Mid Exam" required />
         </div>
         <div class="form-group">
           <label for="submissionUrl">Submission URL *</label>
-          <input type="url" id="submissionUrl" placeholder="https://github.com/user/repo" required />
+          <input type="url" id="submissionUrl" placeholder="https://github.com/username/devops-lab" required />
         </div>
         <button type="submit" class="btn">Submit Assignment</button>
       </form>
@@ -85,8 +100,16 @@
 
     <!-- Submissions List -->
     <div class="card">
-      <h2>Submissions <span id="count" class="badge">0</span></h2>
-      <div id="submissionsList"></div>
+      <h2>
+        <span>Submitted Assignments</span>
+        <span id="count" class="badge">0</span>
+      </h2>
+      <div class="table-container">
+        <div id="submissionsList"></div>
+      </div>
+      <p class="mode-note">
+        💡 <strong>Live Demo:</strong> Submissions are validated and stored in browser memory/session on GitHub Pages demo.
+      </p>
     </div>
   </div>
 
@@ -96,6 +119,22 @@
     const submissionsList = document.getElementById("submissionsList");
     const countBadge = document.getElementById("count");
 
+    // Local in-browser storage fallback for GitHub Pages static hosting
+    const STORAGE_KEY = "assignment_submissions";
+    function getStoredSubmissions() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        return stored ? JSON.parse(stored) : [];
+      } catch {
+        return [];
+      }
+    }
+    function saveStoredSubmissions(list) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      } catch {}
+    }
+
     function showAlert(type, message) {
       alert.className = `alert alert-${type}`;
       alert.textContent = message;
@@ -103,50 +142,110 @@
       setTimeout(() => { alert.style.display = "none"; }, 4000);
     }
 
-    async function loadSubmissions() {
-      const res = await fetch("/api/submissions");
-      const data = await res.json();
+    function renderSubmissions(data) {
       countBadge.textContent = data.length;
-      if (data.length === 0) {
-        submissionsList.innerHTML = '<div class="empty-msg">No submissions yet. Be the first to submit!</div>';
+      if (!data || data.length === 0) {
+        submissionsList.innerHTML = '<div class="empty-msg">No submissions recorded yet. Submit your assignment above!</div>';
         return;
       }
       let html = `<table><thead><tr>
-        <th>#</th><th>Name</th><th>Reg No.</th><th>Title</th><th>URL</th><th>Time</th>
+        <th>#</th><th>Student Name</th><th>Reg No.</th><th>Assignment Title</th><th>Submission URL</th><th>Submitted At</th>
       </tr></thead><tbody>`;
       data.forEach((s, i) => {
+        const dateStr = s.submittedAt ? new Date(s.submittedAt).toLocaleString() : new Date().toLocaleString();
         html += `<tr>
-          <td>${i + 1}</td><td>${s.name}</td><td>${s.registrationNumber}</td>
-          <td>${s.assignmentTitle}</td>
-          <td><a href="${s.submissionUrl}" target="_blank">View</a></td>
-          <td>${new Date(s.submittedAt).toLocaleString()}</td>
+          <td>${i + 1}</td>
+          <td><strong>${escapeHtml(s.name)}</strong></td>
+          <td><code>${escapeHtml(s.registrationNumber)}</code></td>
+          <td>${escapeHtml(s.assignmentTitle)}</td>
+          <td><a href="${escapeHtml(s.submissionUrl)}" class="link-btn" target="_blank" rel="noopener">Open Link ↗</a></td>
+          <td>${dateStr}</td>
         </tr>`;
       });
       html += "</tbody></table>";
       submissionsList.innerHTML = html;
     }
 
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text || "";
+      return div.innerHTML;
+    }
+
+    async function loadSubmissions() {
+      try {
+        const res = await fetch("/api/submissions");
+        if (res.ok) {
+          const data = await res.json();
+          renderSubmissions(data);
+          return;
+        }
+      } catch {}
+      // Fallback to localStorage on static GitHub Pages
+      renderSubmissions(getStoredSubmissions());
+    }
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const body = {
-        name: document.getElementById("name").value,
-        registrationNumber: document.getElementById("registrationNumber").value,
-        assignmentTitle: document.getElementById("assignmentTitle").value,
-        submissionUrl: document.getElementById("submissionUrl").value,
+        name: document.getElementById("name").value.trim(),
+        registrationNumber: document.getElementById("registrationNumber").value.trim(),
+        assignmentTitle: document.getElementById("assignmentTitle").value.trim(),
+        submissionUrl: document.getElementById("submissionUrl").value.trim(),
       };
-      const res = await fetch("/api/submissions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (data.success) {
-        showAlert("success", "Assignment submitted successfully!");
-        form.reset();
-        loadSubmissions();
+
+      // Client validation matching backend requirements
+      const errors = [];
+      if (!body.name) errors.push("Name is required.");
+      if (!body.registrationNumber) errors.push("Registration number is required.");
+      if (!body.assignmentTitle) errors.push("Assignment title is required.");
+      if (!body.submissionUrl) {
+        errors.push("Submission URL is required.");
       } else {
-        showAlert("error", data.errors.join(" "));
+        try {
+          const parsed = new URL(body.submissionUrl);
+          if (!["http:", "https:"].includes(parsed.protocol)) {
+            errors.push("Submission URL must be a valid HTTP or HTTPS URL.");
+          }
+        } catch {
+          errors.push("Submission URL must be a valid HTTP or HTTPS URL.");
+        }
       }
+
+      if (errors.length > 0) {
+        showAlert("error", errors.join(" "));
+        return;
+      }
+
+      // Try server API first
+      try {
+        const res = await fetch("/api/submissions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            showAlert("success", "Assignment submitted successfully!");
+            form.reset();
+            loadSubmissions();
+            return;
+          }
+        }
+      } catch {}
+
+      // If backend not present (static Pages environment), handle locally
+      const list = getStoredSubmissions();
+      list.push({
+        id: list.length + 1,
+        ...body,
+        submittedAt: new Date().toISOString()
+      });
+      saveStoredSubmissions(list);
+      showAlert("success", "Assignment submitted successfully! (Saved to demonstration portal)");
+      form.reset();
+      renderSubmissions(list);
     });
 
     loadSubmissions();
