@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Assignment Submission Portal</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh; padding: 20px;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 {
+      text-align: center; color: #fff; margin-bottom: 30px;
+      font-size: 2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .card {
+      background: #fff; border-radius: 12px; padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 30px;
+    }
+    .card h2 { color: #333; margin-bottom: 20px; font-size: 1.3rem; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; margin-bottom: 6px; font-weight: 600; color: #555; }
+    input {
+      width: 100%; padding: 10px 14px; border: 2px solid #e0e0e0;
+      border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;
+    }
+    input:focus { outline: none; border-color: #667eea; }
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff; border: none; padding: 12px 30px; border-radius: 8px;
+      font-size: 1rem; cursor: pointer; font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102,126,234,0.4); }
+    .alert {
+      padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;
+      font-size: 0.95rem; display: none;
+    }
+    .alert-error { background: #fee; color: #c33; border: 1px solid #fcc; }
+    .alert-success { background: #efe; color: #363; border: 1px solid #cfc; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #eee; }
+    th { background: #f8f9fa; color: #555; font-weight: 600; }
+    tr:hover { background: #f0f4ff; }
+    a { color: #667eea; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .empty-msg { color: #999; text-align: center; padding: 30px; font-style: italic; }
+    .badge {
+      display: inline-block; background: #667eea; color: #fff;
+      padding: 2px 10px; border-radius: 12px; font-size: 0.85rem; margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📚 Assignment Submission Portal</h1>
+
+    <!-- Submission Form -->
+    <div class="card">
+      <h2>Submit Assignment</h2>
+      <div id="alert" class="alert"></div>
+      <form id="submissionForm">
+        <div class="form-group">
+          <label for="name">Student Name *</label>
+          <input type="text" id="name" placeholder="Enter your full name" required />
+        </div>
+        <div class="form-group">
+          <label for="registrationNumber">Registration Number *</label>
+          <input type="text" id="registrationNumber" placeholder="e.g., SP22-BSE-001" required />
+        </div>
+        <div class="form-group">
+          <label for="assignmentTitle">Assignment Title *</label>
+          <input type="text" id="assignmentTitle" placeholder="Enter assignment title" required />
+        </div>
+        <div class="form-group">
+          <label for="submissionUrl">Submission URL *</label>
+          <input type="url" id="submissionUrl" placeholder="https://github.com/user/repo" required />
+        </div>
+        <button type="submit" class="btn">Submit Assignment</button>
+      </form>
+    </div>
+
+    <!-- Submissions List -->
+    <div class="card">
+      <h2>Submissions <span id="count" class="badge">0</span></h2>
+      <div id="submissionsList"></div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("submissionForm");
+    const alert = document.getElementById("alert");
+    const submissionsList = document.getElementById("submissionsList");
+    const countBadge = document.getElementById("count");
+
+    function showAlert(type, message) {
+      alert.className = `alert alert-${type}`;
+      alert.textContent = message;
+      alert.style.display = "block";
+      setTimeout(() => { alert.style.display = "none"; }, 4000);
+    }
+
+    async function loadSubmissions() {
+      const res = await fetch("/api/submissions");
+      const data = await res.json();
+      countBadge.textContent = data.length;
+      if (data.length === 0) {
+        submissionsList.innerHTML = '<div class="empty-msg">No submissions yet. Be the first to submit!</div>';
+        return;
+      }
+      let html = `<table><thead><tr>
+        <th>#</th><th>Name</th><th>Reg No.</th><th>Title</th><th>URL</th><th>Time</th>
+      </tr></thead><tbody>`;
+      data.forEach((s, i) => {
+        html += `<tr>
+          <td>${i + 1}</td><td>${s.name}</td><td>${s.registrationNumber}</td>
+          <td>${s.assignmentTitle}</td>
+          <td><a href="${s.submissionUrl}" target="_blank">View</a></td>
+          <td>${new Date(s.submittedAt).toLocaleString()}</td>
+        </tr>`;
+      });
+      html += "</tbody></table>";
+      submissionsList.innerHTML = html;
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const body = {
+        name: document.getElementById("name").value,
+        registrationNumber: document.getElementById("registrationNumber").value,
+        assignmentTitle: document.getElementById("assignmentTitle").value,
+        submissionUrl: document.getElementById("submissionUrl").value,
+      };
+      const res = await fetch("/api/submissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showAlert("success", "Assignment submitted successfully!");
+        form.reset();
+        loadSubmissions();
+      } else {
+        showAlert("error", data.errors.join(" "));
+      }
+    });
+
+    loadSubmissions();
+  </script>
+</body>
+</html>
