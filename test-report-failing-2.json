@@ -1,0 +1,30 @@
+{
+  "repository": "munazzaashraf47/devops_mid_lab",
+  "branch": "main",
+  "commitSha": "5434d1b5a4bf94e66e30fd78eefd553fc981ce10",
+  "pipelineRunId": "44256531143",
+  "timestamp": "2026-11-18T07:08:31.745Z",
+  "tests": [
+    {
+      "name": "Assignment Submission Portal should save submission with complete details and valid URL",
+      "result": "failed",
+      "failureMessage": "Error: expected 201 \"Created\", got 400 \"Bad Request\"\n    at Object.expect (/home/runner/work/devops_mid_lab/devops_mid_lab/tests/submission.test.js:17:8)\n    at Promise.then.completed (/home/runner/work/devops_mid_lab/devops_mid_lab/node_modules/jest-circus/build/utils.js:298:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/runner/work/devops_mid_lab/devops_mid_lab/node_modules/jest-circus/build/utils.js:231:10)\n    at _callCircusTest (/home/runner/work/devops_mid_lab/devops_mid_lab/node_modules/jest-circus/build/run.js:316:40)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at _runTest (/home/runner/work/devops_mid_lab/devops_mid_lab/node_modules/jest-circus/build/run.js:252:3)\n    at _runTestsForDescribeBlock (/home/runner/work/devops_mid_lab/devops_mid_lab/node_modules/jest-circus/build/run.js:126:9)\n    at _runTestsForDescribeBlock (/home/runner/work/devops_mid_lab/devops_mid_lab/node_modules/jest-circus/build/run.js:121:9)\n    at run (/home/runner/work/devops_mid_lab/devops_mid_lab/node_modules/jest-circus/build/run.js:71:3)\n    at runAndTransformResultsToJestFormat (/home/runner/work/devops_mid_lab/devops_mid_lab/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)\n    at jestAdapter (/home/runner/work/devops_mid_lab/devops_mid_lab/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)\n    at runTestInternal (/home/runner/work/devops_mid_lab/devops_mid_lab/node_modules/jest-runner/build/runTest.js:367:16)\n    at runTest (/home/runner/work/devops_mid_lab/devops_mid_lab/node_modules/jest-runner/build/runTest.js:444:34)\n----\n    at Test._assertStatus (/home/runner/work/devops_mid_lab/devops_mid_lab/node_modules/supertest/lib/test.js:252:14)\n    at /home/runner/work/devops_mid_lab/devops_mid_lab/node_modules/supertest/lib/test.js:308:13\n    at Test._assertFunction (/home/runner/work/devops_mid_lab/devops_mid_lab/node_modules/supertest/lib/test.js:285:13)\n    at Test.assert (/home/runner/work/devops_mid_lab/devops_mid_lab/node_modules/supertest/lib/test.js:164:23)\n    at Server.localAssert (/home/runner/work/devops_mid_lab/devops_mid_lab/node_modules/supertest/lib/test.js:120:14)\n    at Object.onceWrapper (node:events:638:28)\n    at Server.emit (node:events:524:28)\n    at emitCloseNT (node:net:2344:8)\n    at processTicksAndRejections (node:internal/process/task_queues:81:21)"
+    },
+    {
+      "name": "Assignment Submission Portal should reject submission with missing registration number",
+      "result": "passed",
+      "failureMessage": null
+    },
+    {
+      "name": "Assignment Submission Portal should reject submission with invalid URL and not save it",
+      "result": "passed",
+      "failureMessage": null
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "passed": 2,
+    "failed": 1
+  },
+  "overallStatus": "FAILED"
+}

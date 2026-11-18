@@ -1,0 +1,30 @@
+{
+  "repository": "munazzaashraf47/devops_mid_lab",
+  "branch": "main",
+  "commitSha": "5fc8cd0e57e67931e2a7fd0533a85f846e197d24",
+  "pipelineRunId": "44256332486",
+  "timestamp": "2026-11-18T07:06:58.340Z",
+  "tests": [
+    {
+      "name": "Assignment Submission Portal should save submission with complete details and valid URL",
+      "result": "passed",
+      "failureMessage": null
+    },
+    {
+      "name": "Assignment Submission Portal should reject submission with missing registration number",
+      "result": "passed",
+      "failureMessage": null
+    },
+    {
+      "name": "Assignment Submission Portal should reject submission with invalid URL and not save it",
+      "result": "passed",
+      "failureMessage": null
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0
+  },
+  "overallStatus": "PASSED"
+}
