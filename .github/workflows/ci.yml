@@ -28,45 +28,7 @@ jobs:
 
       - name: Build test report JSON
         if: always() && steps.tests.outputs.done == 'true'
-        run: |
-          node -e "
-          const fs = require('fs');
-          const results = JSON.parse(fs.readFileSync('test-results.json', 'utf-8'));
-
-          const tests = [];
-          for (const suite of results.testResults) {
-            for (const t of suite.testResults) {
-              tests.push({
-                name: t.fullName || t.title,
-                result: t.status === 'passed' ? 'passed' : 'failed',
-                failureMessage: t.failureMessages && t.failureMessages.length > 0
-                  ? t.failureMessages.join('\n')
-                  : null
-              });
-            }
-          }
-
-          const passed = tests.filter(t => t.result === 'passed').length;
-          const failed = tests.filter(t => t.result === 'failed').length;
-
-          const report = {
-            repository: '${{ github.repository }}',
-            branch: '${{ github.ref_name }}',
-            commitSha: '${{ github.sha }}',
-            pipelineRunId: '${{ github.run_id }}',
-            timestamp: new Date().toISOString(),
-            tests: tests,
-            summary: {
-              total: tests.length,
-              passed: passed,
-              failed: failed
-            },
-            overallStatus: failed === 0 ? 'PASSED' : 'FAILED'
-          };
-
-          fs.writeFileSync('test-report-payload.json', JSON.stringify(report, null, 2));
-          console.log(JSON.stringify(report, null, 2));
-          "
+        run: node scripts/build-report.js
 
       - name: Send report to local receiver via tunnel
         if: always() && steps.tests.outputs.done == 'true'
